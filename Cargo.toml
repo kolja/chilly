@@ -1,0 +1,10 @@
+[package]
+name = "chilly"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = "0.16.0"
+lazy_static = "1.5.0"
+strum = "0.27.1"
+strum_macros = "0.27.1"
