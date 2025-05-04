@@ -1,9 +1,11 @@
-
-use bevy::prelude::*;
 use crate::grid::{CellType, Grid, GridCell};
+use bevy::prelude::*;
 
-use std::sync::Mutex;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
 use lazy_static::lazy_static;
+use std::sync::Mutex;
 
 #[derive(Resource, Debug)]
 pub enum Strategy {
@@ -28,21 +30,34 @@ impl ContainsEdge for Vec<usize> {
     }
 }
 
-pub fn solve(
-    grid: Res<Grid>,
-    strategy: Res<Strategy>,
-    player_start: Res<PlayerStart>
-) {
+pub fn solve(grid: Res<Grid>, player_start: Res<PlayerStart>) {
     let first_cell_id = grid.get(player_start.0).unwrap().id;
-    follow_path(&grid, first_cell_id, vec![first_cell_id]);
+    unsafe {
+        follow_path(&grid, first_cell_id, vec![first_cell_id]);
+    }
 
     println!("Longest path: {:?}", *LONGEST_PATH.lock().unwrap());
 }
 
 fn follow_path(grid: &Grid, cell_id: usize, acc: Vec<usize>) {
-    let cell = grid.cells[cell_id];
-    let (way1, way2, way3, way4) = cell.ways;
-    // wip
+    let (up, right, down, left) = grid.cells[cell_id].ways;
+    for next_cell_id in [up, right, down, left] {
+        if let Some(id) = next_cell_id {
+            if acc.contains_edge(&id) {
+                continue;
+            }
+            if grid.cells[id].cell_type == CellType::Exit {
+                if acc.len() > LONGEST_PATH.lock().unwrap().len() {
+                    LONGEST_PATH.lock().unwrap().clear();
+                    LONGEST_PATH.lock().unwrap().extend(acc.clone());
+                }
+                continue;
+            }
+            let mut new_acc = acc.clone();
+            new_acc.push(id);
+            follow_path(grid, id, new_acc);
+        }
+    }
 }
 
 struct Node {
@@ -67,7 +82,13 @@ pub fn print_ways(grid: Res<Grid>) {
     println!("-- which node can you go to from any given node: --");
     for cell in &grid.cells {
         let (way1, way2, way3, way4) = cell.ways;
-        print!("[{} {} {} {}]", way1.unwrap_or(0), way2.unwrap_or(0), way3.unwrap_or(0), way4.unwrap_or(0));
+        print!(
+            "[{} {} {} {}]",
+            way1.unwrap_or(0),
+            way2.unwrap_or(0),
+            way3.unwrap_or(0),
+            way4.unwrap_or(0)
+        );
         println!();
     }
 }

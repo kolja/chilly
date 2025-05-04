@@ -1,3 +1,3 @@
-pub mod import;
 pub mod grid;
+pub mod import;
 pub mod solver;

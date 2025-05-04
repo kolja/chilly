@@ -71,13 +71,17 @@ impl Grid {
         distance: usize,
     ) -> Option<usize> {
         let (width, _height) = self.size;
-        let (col, row) = (cell as isize % width as isize, cell as isize / width as isize);
+        let (col, row) = (
+            cell as isize % width as isize,
+            cell as isize / width as isize,
+        );
         let next_cell = match direction {
-            Direction::UP =>    self.get((col, row - 1)),
+            Direction::UP => self.get((col, row - 1)),
             Direction::RIGHT => self.get((col + 1, row)),
-            Direction::DOWN =>  self.get((col, row + 1)),
-            Direction::LEFT =>  self.get((col - 1, row)),
-        }.expect("Failed to get next cell");
+            Direction::DOWN => self.get((col, row + 1)),
+            Direction::LEFT => self.get((col - 1, row)),
+        }
+        .expect("Failed to get next cell");
 
         return match next_cell.cell_type {
             CellType::Obstacle => {
@@ -96,7 +100,7 @@ impl Grid {
                     return self.walk(direction, next_cell.id, distance + 1);
                 }
             }
-        }
+        };
     }
 
     // find the destination of a portal

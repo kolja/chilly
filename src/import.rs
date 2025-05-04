@@ -1,6 +1,6 @@
+use crate::grid::{CellType, Direction, Grid, GridCell};
 use bevy::prelude::*;
 use std::fs;
-use crate::grid::{Grid, GridCell, CellType, Direction};
 
 #[derive(Resource)]
 struct LevelPath(String);
@@ -29,7 +29,7 @@ fn load_level(level_path: Res<LevelPath>, mut grid: ResMut<Grid>) {
                             CellType::Portal(digit)
                         }
                         'x' => CellType::Exit,
-                         _  => CellType::Empty
+                        _ => CellType::Empty,
                     };
                     grid.cells.push(GridCell {
                         id: row_index * line.len() + col_index,
@@ -51,17 +51,18 @@ fn load_level(level_path: Res<LevelPath>, mut grid: ResMut<Grid>) {
 fn find_ways(mut grid: ResMut<Grid>) {
     let size = grid.cells.len();
     for i in 0..size {
-        grid.cells[i].ways = (grid.walk(Direction::UP,   grid.cells[i].id, 0),
-                              grid.walk(Direction::RIGHT,grid.cells[i].id, 0),
-                              grid.walk(Direction::DOWN, grid.cells[i].id, 0),
-                              grid.walk(Direction::LEFT, grid.cells[i].id, 0));
+        grid.cells[i].ways = (
+            grid.walk(Direction::UP, grid.cells[i].id, 0),
+            grid.walk(Direction::RIGHT, grid.cells[i].id, 0),
+            grid.walk(Direction::DOWN, grid.cells[i].id, 0),
+            grid.walk(Direction::LEFT, grid.cells[i].id, 0),
+        );
     }
 }
 
 impl Plugin for Import {
     fn build(&self, app: &mut App) {
         app.insert_resource(LevelPath(self.path.clone())) // Use the path from the struct.
-           .add_systems(Startup, (load_level, find_ways).chain());
+            .add_systems(Startup, (load_level, find_ways).chain());
     }
 }
-
