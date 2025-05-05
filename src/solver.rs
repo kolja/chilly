@@ -2,6 +2,7 @@ use crate::grid::{CellType, Grid};
 use bevy::prelude::*;
 
 use std::sync::Mutex;
+use once_cell::sync::Lazy;
 
 #[derive(Resource, Debug)]
 pub enum Strategy {
@@ -12,9 +13,7 @@ pub enum Strategy {
 #[derive(Resource, Debug, Clone, Copy)]
 pub struct PlayerStart(pub (isize, isize));
 
-lazy_static::lazy_static! {
-    static ref LONGEST_PATH: Mutex<Vec<(usize, usize)>> = Mutex::new(Vec::new());
-}
+static LONGEST_PATH: Lazy<Mutex<Vec<(usize, usize)>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
 trait ChillyMoves {
     fn contains_edge(&self, node: usize) -> bool;
@@ -47,10 +46,14 @@ impl ChillyMoves for Vec<(usize, usize)> {
 
 pub fn solve(grid: Res<Grid>, strategy: Res<Strategy>, player_start: Res<PlayerStart>) {
     let first_cell_id = grid.get(player_start.0).unwrap().id;
-    unsafe {
-        follow_path(&grid, &*strategy, first_cell_id, vec![(first_cell_id, 0 as usize)].as_mut());
-    }
-    println!("Longest Command Sequence:\n{}", LONGEST_PATH.lock().unwrap().clone().commands());
+
+    let mut init_path = Vec::new();
+    init_path.push((first_cell_id, 0_usize));
+
+    follow_path(&grid, &strategy, first_cell_id, &mut init_path);
+
+    let longest_path = LONGEST_PATH.lock().unwrap();
+    println!("Longest Command Sequence:\n{}", longest_path.commands());
 }
 
 fn follow_path(grid: &Grid, strategy: &Strategy, cell_id: usize, acc: &mut Vec<(usize, usize)>) {

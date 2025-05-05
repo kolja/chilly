@@ -1504,6 +1504,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "lazy_static",
+ "once_cell",
  "strum 0.27.1",
  "strum_macros 0.27.1",
 ]

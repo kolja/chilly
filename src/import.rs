@@ -2,21 +2,42 @@ use crate::grid::{CellType, Direction, Grid, GridCell};
 use bevy::prelude::*;
 use std::fs;
 
-#[derive(Resource)]
-struct LevelPath(String);
-
-pub struct Import {
-    path: String,
+#[derive(Resource, Clone, Copy)]
+pub enum Level {
+    MiniEiersuche,
+    KeinHaltZweimal,
+    KeineDoppeltenWege,
 }
 
-impl Import {
-    pub fn new(path: String) -> Self {
-        Self { path }
+impl Level {
+    fn filename(&self) -> &'static str {
+        match self {
+            Level::MiniEiersuche => "assets/mini-eiersuche.txt",
+            Level::KeinHaltZweimal => "assets/kein-halt-zweimal.txt",
+            Level::KeineDoppeltenWege => "assets/keine-doppelten-wege.txt",
+        }
     }
 }
 
-fn load_level(level_path: Res<LevelPath>, mut grid: ResMut<Grid>) {
-    let contents = fs::read_to_string(level_path.0.as_str());
+pub struct Import {
+    level: Level,
+}
+
+impl Import {
+    pub fn new(level: Level) -> Self {
+        Self { level }
+    }
+}
+
+impl Plugin for Import {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(self.level)
+            .add_systems(Startup, (load_level, find_ways).chain());
+    }
+}
+
+fn load_level(level: Res<Level>, mut grid: ResMut<Grid>) {
+    let contents = fs::read_to_string(level.filename());
 
     match contents {
         Ok(contents) => {
@@ -60,9 +81,3 @@ fn find_ways(mut grid: ResMut<Grid>) {
     }
 }
 
-impl Plugin for Import {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(LevelPath(self.path.clone()))
-            .add_systems(Startup, (load_level, find_ways).chain());
-    }
-}
