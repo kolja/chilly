@@ -43,7 +43,7 @@ fn load_level(level_path: Res<LevelPath>, mut grid: ResMut<Grid>) {
             grid.size = (cols, rows);
         }
         Err(e) => {
-            error!("Failed to read level file: {}", e);
+            error!("Failed to read level: {}", e);
         }
     }
 }
@@ -62,7 +62,7 @@ fn find_ways(mut grid: ResMut<Grid>) {
 
 impl Plugin for Import {
     fn build(&self, app: &mut App) {
-        app.insert_resource(LevelPath(self.path.clone())) // Use the path from the struct.
+        app.insert_resource(LevelPath(self.path.clone()))
             .add_systems(Startup, (load_level, find_ways).chain());
     }
 }

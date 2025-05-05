@@ -67,7 +67,7 @@ impl Grid {
     pub fn walk(
         &self,
         direction: Direction,
-        cell: usize, // Use usize (index)
+        cell: usize,
         distance: usize,
     ) -> Option<usize> {
         let (width, _height) = self.size;
