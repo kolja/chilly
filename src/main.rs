@@ -22,7 +22,7 @@ fn main() {
         .insert_resource(PlayerStart((7, 1)))
 
         // MiniEiersuche, KeinHaltZweimal, KeineDoppeltenWege
-        .add_plugins(Import::new(Level::KeinHaltZweimal))
+        .add_plugins(Import::new(Level::MiniEiersuche))
         .add_plugins(RenderGrid)
 
         // .add_systems(Last, solve)

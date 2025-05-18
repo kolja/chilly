@@ -34,6 +34,21 @@ fn wrap(value: isize, max: usize) -> usize {
     value.rem_euclid(max as isize) as usize
 }
 
+impl GridCell {
+    pub fn valid_ways(&self) -> impl Iterator<Item = (Direction, usize)> + '_ {
+        [
+            (Direction::UP, self.ways.0),
+            (Direction::RIGHT, self.ways.1),
+            (Direction::DOWN, self.ways.2),
+            (Direction::LEFT, self.ways.3),
+        ]
+        .into_iter()
+        .filter_map(|(dir, opt_val)| {
+            opt_val.map(|val| (dir, val))
+        })
+    }
+}
+
 impl Grid {
     pub fn new() -> Self {
         Grid {
